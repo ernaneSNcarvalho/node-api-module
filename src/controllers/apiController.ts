@@ -16,9 +16,43 @@ export const nome = (req: Request, res: Response) => {
 }
 
 export const criarFrases = async (req: Request, res: Response) => {
-    let {autor, txt} = req.body;
-    
+    let {autor, txt} = req.body;    
     let novaFrase = await Frase.create({autor, txt});
-
     res.json({corpo: req.body});
+}
+
+export const pegarFrases = async (req: Request, res: Response) => {
+    let frases = await Frase.findAll();
+    res.json({frases});
+}
+
+export const pegarFrase = async (req: Request, res: Response) => {
+    let {id} = req.params;
+    let frase = await Frase.findByPk(id);
+
+    res.json({frase});
+}
+
+export const atualizarFrase = async (req: Request, res: Response) => {
+    let {id} = req.params;
+    let frase = await Frase.findByPk(id);
+    let {autor, txt} = req.body;
+
+    if(frase){
+        frase.autor = autor;
+        autor.txt = txt;
+        await frase.save();
+        res.json({ frase});
+    }else{
+        res.json({error: 'frase nao encontrada.'})
+    }
+    res.json({});
+}
+
+export const deletarFrase = async (req: Request, res: Response) => {
+    let {id} = req.params;
+    await Frase.destroy({
+        where: { id}
+    });
+    res.json({});
 }
