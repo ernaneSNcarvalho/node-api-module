@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import {Frase} from '../models/Frases';
-
+import sharp from 'sharp';
 export const ping = (req: Request, res: Response) => {
     res.json({ping: true});
 }
@@ -57,10 +57,24 @@ export const deletarFrase = async (req: Request, res: Response) => {
     res.json({});
 }
 
-export const uploadFile = async (req: Request, res: Response) => {
+/*export const uploadFile = async (req: Request, res: Response) => {
     const files = req.files as {[fieldname: string]: Express.Multer.File[]}
     console.log("AVATAR", files.avatar);
     console.log("GALLERY", files.gallery);
 
+    res.json({})
+}*/
+
+export const uploadFile = async (req: Request, res: Response) => {
+    if(req.file){
+        await sharp(req.file.path)
+            .resize(500)
+            .toFormat('jpeg')
+            .toFile(`./public/media/${req.file.filename}.jpg`);
+        res.json({})
+    }else{
+        res.status(400)
+        res.json({error: "File not found"})
+    }
     res.json({})
 }
