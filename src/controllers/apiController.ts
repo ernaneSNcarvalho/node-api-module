@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import {Frase} from '../models/Frases';
 import sharp from 'sharp';
+import {unlink} from 'fs/promises';
 export const ping = (req: Request, res: Response) => {
     res.json({ping: true});
 }
@@ -67,11 +68,17 @@ export const deletarFrase = async (req: Request, res: Response) => {
 
 export const uploadFile = async (req: Request, res: Response) => {
     if(req.file){
+        let filename = `${req.file.filename}.jpg`;
         await sharp(req.file.path)
-            .resize(500)
+            .resize(300,300, {
+                fit: sharp.fit.cover,
+                position: 'top'
+            })
             .toFormat('jpeg')
             .toFile(`./public/media/${req.file.filename}.jpg`);
-        res.json({})
+
+            await unlink(req.file.path);
+        res.json({image: `${filename}`});
     }else{
         res.status(400)
         res.json({error: "File not found"})
